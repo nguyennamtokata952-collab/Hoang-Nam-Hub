@@ -1,76 +1,64 @@
 getgenv().ScriptTitle = "Hoàng Nam Hub"
 getgenv().ScriptSubTitle = "V2"
-getgenv().ScriptImage = "https://i.ibb.co/LdqZGv46/2148.png"
-getgenv().ScriptAuthorName = "Hoàng Nam"
-getgenv().ScriptAuthorSubTitle = "https://discord.gg/brAqDRXVp"
 
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bracket-v2/Bracket-V2/main/bracket-v2.lua"))()
-local Window = Library:CreateWindow({
-    Name = getgenv().ScriptTitle .. " " .. getgenv().ScriptSubTitle,
-    Size = UDim2.new(0, 520, 0, 400),
-    ToggleKey = Enum.KeyCode.RightControl,
-    Theme = "Dark"
-})
+-- Sử dụng thư viện giao diện Kavo ổn định hơn trên điện thoại
+local Kavo = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Kavo.CreateLib(getgenv().ScriptTitle .. " " .. getgenv().ScriptSubTitle, "DarkTheme")
 
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VirtualUser = game:GetService("VirtualUser")
 
-local TabFarm = Window:CreateTab("Tự Động (Farm)")
-local TabTele = Window:CreateTab("Dịch Chuyển")
-local TabESP = Window:CreateTab("Định Vị (ESP)")
-local TabPVP = Window:CreateTab("Tự Động PVP")
-local TabMisc = Window:CreateTab("Khác / Trái Quỷ")
+-- Tạo các Tab chức năng
+local TabFarm = Window:NewTab("Tự Động (Farm)")
+local TabTele = Window:NewTab("Dịch Chuyển")
+local TabESP = Window:NewTab("Định Vị (ESP)")
+local TabPVP = Window:NewTab("Tự Động PVP")
+local TabMisc = Window:NewTab("Khác / Trái Quỷ")
 
-TabFarm:CreateToggle({
-    Name = "Tự động Farm Level",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.AutoFarmLV = Value
-        task.spawn(function()
-            while _G.AutoFarmLV do task.wait(0.1)
-                pcall(function()
-                    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-                        if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-                            LP.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
-                            VirtualUser:CaptureController()
-                            VirtualUser:ClickButton1(Vector2.new(850, 520))
-                        end
+-- Tạo các Section bên trong Tab
+local SectionFarm = TabFarm:NewSection("Farm Level & Boss")
+local SectionTele = TabTele:NewSection("Chọn Đảo")
+local SectionESP = TabESP:NewSection("Định vị")
+local SectionPVP = TabPVP:NewSection("Săn Bounty")
+local SectionMisc = TabMisc:NewSection("Tiện ích")
+
+SectionFarm:NewToggle("Tự động Farm Level", "Tự động đánh quái farm cấp", function(Value)
+    _G.AutoFarmLV = Value
+    task.spawn(function()
+        while _G.AutoFarmLV do task.wait(0.1)
+            pcall(function()
+                for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+                    if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                        LP.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
+                        VirtualUser:CaptureController()
+                        VirtualUser:ClickButton1(Vector2.new(850, 520))
                     end
-                end)
-            end
-        end)
-    end
-})
+                end
+            end)
+        end
+    end)
+end)
 
 local BossList = {"Saber Expert", "The Saw", "Greybeard", "Beautiful Pirate", "Rip_Indra", "Dough King"}
-TabFarm:CreateDropdown({
-    Name = "Chọn Boss",
-    Options = BossList,
-    CurrentOption = BossList[1],
-    Callback = function(SelectedBoss)
-        _G.SelectedBossName = SelectedBoss
-    end
-})
+SectionFarm:NewDropdown("Chọn Boss", "Chọn con boss muốn diệt", BossList, function(SelectedBoss)
+    _G.SelectedBossName = SelectedBoss
+end)
 
-TabFarm:CreateToggle({
-    Name = "Tự động đánh Boss đã chọn",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.AutoFarmBoss = Value
-        task.spawn(function()
-            while _G.AutoFarmBoss do task.wait(0.1)
-                pcall(function()
-                    local targetBoss = workspace.Enemies:FindFirstChild(_G.SelectedBossName) or workspace.Bosses:FindFirstChild(_G.SelectedBossName)
-                    if targetBoss and targetBoss:FindFirstChild("Humanoid") and targetBoss.Humanoid.Health > 0 then
-                        LP.Character.HumanoidRootPart.CFrame = targetBoss.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
-                    end
-                end)
-            end
-        end)
-    end
-})
+SectionFarm:NewToggle("Tự động đánh Boss đã chọn", "Farm boss tự động", function(Value)
+    _G.AutoFarmBoss = Value
+    task.spawn(function()
+        while _G.AutoFarmBoss do task.wait(0.1)
+            pcall(function()
+                local targetBoss = workspace.Enemies:FindFirstChild(_G.SelectedBossName) or workspace.Bosses:FindFirstChild(_G.SelectedBossName)
+                if targetBoss and targetBoss:FindFirstChild("Humanoid") and targetBoss.Humanoid.Health > 0 then
+                    LP.Character.HumanoidRootPart.CFrame = targetBoss.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
+                end
+            end)
+        end
+    end)
+end)
 
 local IslandList = {"Đảo Tân Thủ", "Đảo Khỉ", "Đảo Cát", "Đảo Tuyết", "Dinh Thự"}
 local IslandPositions = {
@@ -81,40 +69,24 @@ local IslandPositions = {
     ["Dinh Thự"] = Vector3.new(-12463, 331, -7555)
 }
 
-TabTele:CreateDropdown({
-    Name = "Chọn Đảo Dịch Chuyển",
-    Options = IslandList,
-    CurrentOption = IslandList[1],
-    Callback = function(SelectedIsland)
-        _G.SelectedIslandName = SelectedIsland
-    end
-})
+SectionTele:NewDropdown("Chọn Đảo Dịch Chuyển", "Chọn đảo cần đến", IslandList, function(SelectedIsland)
+    _G.SelectedIslandName = SelectedIsland
+end)
 
-TabTele:CreateButton({
-    Name = "Bay Đến Đảo Đã Chọn",
-    Callback = function()
-        local pos = IslandPositions[_G.SelectedIslandName]
-        if pos and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
-        end
+SectionTele:NewButton("Bay Đến Đảo Đã Chọn", "Teleport lập tức", function()
+    local pos = IslandPositions[_G.SelectedIslandName]
+    if pos and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+        LP.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
     end
-})
+end)
 
-TabESP:CreateToggle({
-    Name = "Định vị Trái Ác Quỷ (ESP Fruit)",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.ESPFruit = Value
-    end
-})
+SectionESP:NewToggle("Định vị Trái Ác Quỷ (ESP Fruit)", "Hiện vị trí trái ác quỷ", function(Value)
+    _G.ESPFruit = Value
+end)
 
-TabESP:CreateToggle({
-    Name = "Định vị Người Chơi (ESP Player)",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.ESPPlayer = Value
-    end
-})
+SectionESP:NewToggle("Định vị Người Chơi (ESP Player)", "Hiện vị trí người chơi khác", function(Value)
+    _G.ESPPlayer = Value
+end)
 
 local function GetPlayerNames()
     local tbl = {}
@@ -124,54 +96,30 @@ local function GetPlayerNames()
     return tbl
 end
 
-TabPVP:CreateDropdown({
-    Name = "Chọn Người Chơi",
-    Options = GetPlayerNames(),
-    CurrentOption = "",
-    Callback = function(SelectedPlayer)
-        _G.TargetPlayer = SelectedPlayer
-    end
-})
+SectionPVP:NewDropdown("Chọn Người Chơi", "Chọn mục tiêu pvp", GetPlayerNames(), function(SelectedPlayer)
+    _G.TargetPlayer = SelectedPlayer
+end)
 
-TabPVP:CreateToggle({
-    Name = "Tự động Săn Bounties",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.AutoPVP = Value
-        task.spawn(function()
-            while _G.AutoPVP do task.wait(0.1)
-                pcall(function()
-                    local p = Players:FindFirstChild(_G.TargetPlayer)
-                    if p and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                        LP.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
-                    end
-                end)
-            end
-        end)
-    end
-})
-
-TabMisc:CreateSlider({
-    Name = "Chạy Nhanh (WalkSpeed)",
-    Min = 16,
-    Max = 300,
-    CurrentValue = 16,
-    Callback = function(Value)
-        if LP.Character and LP.Character:FindFirstChild("Humanoid") then
-            LP.Character.Humanoid.WalkSpeed = Value
+SectionPVP:NewToggle("Tự động Săn Bounties", "Tự bay đến vả mục tiêu", function(Value)
+    _G.AutoPVP = Value
+    task.spawn(function()
+        while _G.AutoPVP do task.wait(0.1)
+            pcall(function()
+                local p = Players:FindFirstChild(_G.TargetPlayer)
+                if p and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    LP.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                end
+            end)
         end
-    end
-})
+    end)
+end)
 
-TabMisc:CreateButton({
-    Name = "Tự Động Gacha Trái Ác Quỷ (Random)",
-    Callback = function()
-        ReplicatedStorage.Remotes.CommF_:InvokeServer("Cousin", "BuyFruit")
+SectionMisc:NewSlider("Chạy Nhanh (WalkSpeed)", "Kéo thanh để đổi tốc độ", 300, 16, function(Value)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+        LP.Character.Humanoid.WalkSpeed = Value
     end
-})
+end)
 
-Library:Notify({
-    Title = getgenv().ScriptTitle,
-    Content = "Xin chào Hoàng Nam! Menu V2 đã sẵn sàng hoạt động.",
-    Duration = 5
-})
+SectionMisc:NewButton("Tự Động Gacha Trái Ác Quỷ", "Bấm để random hên xui", function()
+    ReplicatedStorage.Remotes.CommF_:InvokeServer("Cousin", "BuyFruit")
+end)
