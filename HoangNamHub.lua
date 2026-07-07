@@ -1,17 +1,16 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
--- 2. Tạo cửa sổ chính (Window) của Hoàng Nam Hub
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Window = Fluent:CreateWindow({
     Title = "Hoàng Nam Hub",
-    SubTitle = "by adr🍏 [Nokey v1.0]",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark"
+    SubTitle = "by adr🍏",
+    TabWidth = 160, Size = UDim2.fromOffset(580, 460),
+    Theme = "Dark", MinimizeKey = Enum.KeyCode.LeftControl
 })
-
--- 3. Tạo Tab Menu bên trái (Sidebar)
 local Tabs = {
-    Farm = Window:AddTab({ Title = "Farm", Icon = "home" }),
-    Config = Window:AddTab({ Title = "Config", Icon = "settings" })
+    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+    Farm = Window:AddTab({ Title = "Farm", Icon = "swords" })
 }
+Tabs.Farm:AddSection("Auto Farm")
+Tabs.Farm:AddToggle("AutoFarmLevel", {Title = "Auto Farm Level", Default = false})
+        
+Hãy copy cấu trúc này vào file GitHub của bạn
